@@ -12,8 +12,8 @@ import pandas as pd
 import pg8000
 import pymysql
 
-from vor.tools.upload_to_s3 import upload_to_s3
-from vor.tools.write_to_csv import write_to_csv
+from py_vor.tools.upload_to_s3 import upload_to_s3
+from py_vor.tools.write_to_csv import write_to_csv
 
 
 ##########################################
