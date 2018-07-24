@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 ##########################################
 
 setup(name='py_vor',
-      version='0.0.2',
+      version='0.0.3',
       description='BI automation utilities.',
       url='https://github.com/ksco92/py_vor',
       author='Rodrigo Carvajal',
