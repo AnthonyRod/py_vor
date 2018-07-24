@@ -5,22 +5,14 @@ Object to run queries from SQL files and return them in a specified format.
 Author: ksco92
 """
 
-import pyodbc
-import socket
-
-import pandas as pd
-import pg8000
-import pymysql
-
-from py_vor.tools.upload_to_s3 import upload_to_s3
-from py_vor.tools.write_to_csv import write_to_csv
+from py_vor.tools.CursorFactory import CursorFactory
+from py_vor.tools.ResultsFormatter import ResultsFormatter
 
 
 ##########################################
 ##########################################
 ##########################################
 ##########################################
-
 
 class QueryRunner:
 
@@ -59,7 +51,7 @@ class QueryRunner:
         """Executes the results of all the queries in the specified file and returns the results of the last one in the
         specified format."""
 
-        cur = self.create_cursor()
+        cur = self.get_cursor()
         statements = self.get_statements()
         results = []
 
@@ -71,33 +63,12 @@ class QueryRunner:
     ##########################################
     ##########################################
 
-    def create_cursor(self):
+    def get_cursor(self):
 
-        """Creates a cursor based on the engine provided to the runner."""
+        """Gets a cursor based on the engine name."""
 
-        if self.engine == 'mysql':
-            conn = pymysql.connect(host=self.host, port=self.port, user=self.username, passwd=self.password,
-                                   db=self.schema, autocommit=self.autocommit, connect_timeout=36000, local_infile=True,
-                                   max_allowed_packet=16 * 1024, charset='utf8')
-
-        elif self.engine in ('redshift', 'postgresql'):
-
-            conn = pg8000.connect(user=self.username, password=self.password, host=self.host, port=self.port,
-                                  database=self.schema)
-            conn._usock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-
-            if self.autocommit:
-                conn.autocommit = True
-
-        elif self.engine == 'sqlserver':
-
-            conn = pyodbc.connect(driver="{SQL Server}", server=self.host + ',' + str(self.port), database=self.schema,
-                                  uid=self.username, pwd=self.password, autocommit=self.autocommit)
-
-        else:
-            return None
-
-        return conn.cursor()
+        return CursorFactory(self.engine, self.host, self.port, self.username, self.password, self.schema,
+                             autocommit=self.autocommit).create_cursor()
 
     ##########################################
     ##########################################
@@ -156,40 +127,8 @@ class QueryRunner:
 
         """Returns the results of a statement in the specified format."""
 
-        if self.return_as == 'nested_list':
-            if self.include_headers:
-                return results
-            else:
-                return results[1:]
-
-        elif self.return_as == 'pd_dataframe':
-            results = pd.DataFrame(results[1:], columns=results[0])
-            return results
-
-        elif self.return_as == 'csv_file':
-            if self.include_headers:
-                write_to_csv(self.results_file, results)
-            else:
-                write_to_csv(self.results_file, results[1:])
-            return None
-
-        elif self.return_as == 'dict':
-            keys = results[0]
-            values = results[1:]
-            output = []
-
-            for row in values:
-                output.append(dict(zip(keys, row)))
-
-            output = {'data': output}
-            return output
-
-        elif self.return_as == 's3_upload':
-            if self.include_headers:
-                write_to_csv(self.results_file, results)
-            else:
-                write_to_csv(self.results_file, results[1:])
-
-            upload_to_s3(self.results_file, self.aws_bucket_name, self.aws_file_path,
-                         aws_region_name=self.aws_region_name, aws_access_key_id=self.aws_access_key_id,
-                         aws_secret_access_key=self.aws_secret_access_key)
+        return ResultsFormatter(results, return_as=self.return_as, include_headers=self.include_headers,
+                                results_file=self.results_file, aws_bucket_name=self.aws_bucket_name,
+                                aws_file_path=self.aws_file_path, aws_region_name=self.aws_region_name,
+                                aws_access_key_id=self.aws_access_key_id,
+                                aws_secret_access_key=self.aws_secret_access_key).return_results_as()
