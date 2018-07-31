@@ -1,7 +1,5 @@
 venv
 .idea
-test_db
-tests
 dist
 py_vor.egg-info
 build
