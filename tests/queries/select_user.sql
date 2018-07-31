@@ -1,0 +1,1 @@
+select * from employees.employees where emp_no = 10001
