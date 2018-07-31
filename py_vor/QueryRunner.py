@@ -112,8 +112,9 @@ class QueryRunner:
             query = f.read()
             f.close()
 
-        for ttr, rtw in zip(self.text_to_replace, self.replace_text_with):
-            query = query.replace(ttr, rtw)
+        if self.text_to_replace and self.replace_text_with:
+            for ttr, rtw in zip(self.text_to_replace, self.replace_text_with):
+                query = query.replace(ttr, rtw)
 
         queries = query.split(';')
         queries = filter(None, queries)
