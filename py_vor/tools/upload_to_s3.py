@@ -29,6 +29,11 @@ def upload_to_s3(file_name, aws_bucket_name, aws_file_path, aws_region_name='us-
         s3 = boto3.resource(service_name='s3',
                             region_name=aws_region_name)
 
+    if aws_file_path == '':
+        full_path = file_name
+    else:
+        full_path = aws_file_path + '/' + file_name
+
     with open(file_name, 'rb') as f:
-        s3.Bucket(aws_bucket_name).put_object(Key=(aws_file_path + file_name), Body=f)
+        s3.Bucket(aws_bucket_name).put_object(Key=full_path, Body=f)
         f.close()
