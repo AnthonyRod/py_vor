@@ -13,7 +13,21 @@
       - [args](#args-1)
       - [kwargs](#kwargs-1)
       - [Examples](#examples-1)
+    + [download_from_s3](#download-from-s3)
+      - [args](#args-2)
+      - [kwargs](#kwargs-2)
+      - [Examples](#examples-2)
+        * [Straight from bucket](#straight-from-bucket)
+        * [With additional path](#with-additional-path)
+    + [upload_to_s3](#upload-to-s3)
+      - [args](#args-3)
+      - [kwargs](#kwargs-3)
+      - [Examples](#examples-3)
+        * [Straight to bucket](#straight-to-bucket)
+        * [With additional path](#with-additional-path-1)
   * [Uploaded to PyPI by using](#uploaded-to-pypi-by-using)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 # py_vor
 
@@ -137,6 +151,78 @@ Gets secret from AWS Secrets Manager.
 >>> secret = get_secret('aws_secret_name')
 >>> secret
 {'username': 'dbusername', 'password': 'pswd', 'engine': 'mysql', 'host': 'localhost', 'port': 3306, 'dbname': 'default_schema', 'dbInstanceIdentifier': 'instanceID'}
+>>>
+```
+
+### download_from_s3
+
+Download a file from S3.
+
+#### args
+
+* `file_name`: Name of the file to download from S3.
+* `aws_bucket_name`: Name of the the bucket the file is located on. 
+* `aws_file_path`: Path where the file is located
+
+#### kwargs
+
+* `aws_access_key_id=None`: AWS Access Key ID. Can remain as `None` if AWS CLI has the keys configured or IAM role is set up in host.
+* `aws_secret_access_key=None`: AWS Secret Access Key. Can remain as `None` if AWS CLI has the keys configured or IAM role is set up in host.
+* `aws_region_name='us-east-1'`: Default AWS region name.
+
+#### Examples
+
+##### Straight from bucket
+
+```python 
+>>> from py_vor.tools.download_from_s3 import download_from_s3
+>>> bucket_name = 'bucket-name'
+>>> download_from_s3('my_file.txt', bucket_name, '')
+>>> 
+```
+
+##### With additional path
+
+```python 
+>>> from py_vor.tools.download_from_s3 import download_from_s3
+>>> bucket_name = 'bucket-name'
+>>> download_from_s3('my_file.txt', bucket_name, 'subfolder1/subfolder2')
+>>> 
+```
+
+### upload_to_s3
+
+Upload a file to S3.
+
+#### args
+
+* `file_name`: Name of the file to download from S3.
+* `aws_bucket_name`: Name of the the bucket the file is located on. 
+* `aws_file_path`: Path where the file is located
+
+#### kwargs
+
+* `aws_access_key_id=None`: AWS Access Key ID. Can remain as `None` if AWS CLI has the keys configured or IAM role is set up in host.
+* `aws_secret_access_key=None`: AWS Secret Access Key. Can remain as `None` if AWS CLI has the keys configured or IAM role is set up in host.
+* `aws_region_name='us-east-1'`: Default AWS region name.
+
+#### Examples
+
+##### Straight to bucket
+
+```python 
+>>> from py_vor.tools.upload_to_s3 import upload_to_s3
+>>> bucket_name = 'bucket-name'
+>>> upload_to_s3('my_file.txt', bucket_name, '')
+>>>
+```
+
+##### With additional path
+
+```python 
+>>> from py_vor.tools.upload_to_s3 import upload_to_s3
+>>> bucket_name = 'bucket-name'
+>>> upload_to_s3('my_file.txt', bucket_name, 'subfolder1/subfolder2')
 >>>
 ```
 
